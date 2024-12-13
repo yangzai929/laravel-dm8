@@ -182,9 +182,22 @@ class DmProcessor extends Processor
     public function processColumnListing($results)
     {
         $mapping = function ($r) {
-            $r = (object) $r;
+            if (is_array($r)) {
+                // 如果 $r 是数组，检查是否有 'COLUMN_NAME' 键
+                $columnName = $r['column_name'] ?? $r['COLUMN_NAME'] ?? null;
+            } elseif (is_object($r)) {
+                // 如果 $r 是对象，检查是否有 column_name 属性
+                $columnName = $r->column_name ?? $r->COLUMN_NAME ?? null;
+            } else {
+                // 返回 null 表示结构不匹配
+                $columnName = null;
+            }
 
-            return strtolower($r->column_name);
+            if (!$columnName) {
+                throw new \Exception("Missing 'column_name' field in column listing.");
+            }
+
+            return strtolower($columnName);
         };
 
         return array_map($mapping, $results);
