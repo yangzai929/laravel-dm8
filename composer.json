@@ -1,11 +1,11 @@
 {
-    "name": "maxlcoder/laravel-dm8",
+    "name": "dennyyang/laravel-dm8",
     "description": "php_dm dm8",
     "license": "MIT",
     "authors": [
         {
-            "name": "Woody",
-            "email": "liurenlin77@gmail.com"
+            "name": "deny",
+            "email": "denny929889@gmail.com"
         }
     ],
     "require": {
