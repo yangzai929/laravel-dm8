@@ -14,7 +14,7 @@ class DmBuilder extends Builder
     /**
      * Run a pagination count query.
      *
-     * @param  array  $columns
+     * @param array $columns
      * @return array
      */
     protected function runPaginationCountQuery($columns = ['*'])
@@ -22,12 +22,12 @@ class DmBuilder extends Builder
         if ($this->groups || $this->havings) {
             $clone = $this->cloneForPaginationCount();
 
-            if (is_null($clone->columns) && ! empty($this->joins)) {
-                $clone->select($this->from.'.*');
+            if (is_null($clone->columns) && !empty($this->joins)) {
+                $clone->select($this->from . '.*');
             }
 
             return $this->newQuery()
-                ->from(new Expression('('.$clone->toSql().')'))
+                ->from(new Expression('(' . $clone->toSql() . ')'))
                 ->mergeBindings($clone)
                 ->setAggregate('count', $this->withoutSelectAliases($columns))
                 ->get()->all();
@@ -44,7 +44,7 @@ class DmBuilder extends Builder
     /**
      * Get the count of the total records for the paginator.
      *
-     * @param  array  $columns
+     * @param array $columns
      * @return int
      */
     public function getCountForPagination($columns = ['*'])
@@ -54,21 +54,21 @@ class DmBuilder extends Builder
         // Once we have run the pagination count query, we will get the resulting count and
         // take into account what type of query it was. When there is a group by we will
         // just return the count of the entire results set since that will be correct.
-        if (! isset($results[0])) {
+        if (!isset($results[0])) {
             return 0;
         } elseif (is_object($results[0])) {
-            return (int) (property_exists($results[0], 'AGGREGATE') ? $results[0]->AGGREGATE : $results[0]->aggregate);   // to solve the Oracle issue: auto-convert field to uppercase
+            return (int)(property_exists($results[0], 'AGGREGATE') ? $results[0]->AGGREGATE : $results[0]->aggregate);   // to solve the Oracle issue: auto-convert field to uppercase
         }
 
-        return (int) array_change_key_case((array) $results[0])['aggregate'];
+        return (int)array_change_key_case((array)$results[0])['aggregate'];
     }
 
     /**
      * Insert a new record and get the value of the primary key.
      *
-     * @param  array  $values
-     * @param  array  $binaries
-     * @param  string  $sequence
+     * @param array $values
+     * @param array $binaries
+     * @param string $sequence
      * @return int
      */
     public function insertLob(array $values, array $binaries, $sequence = 'id')
@@ -89,9 +89,9 @@ class DmBuilder extends Builder
     /**
      * Update a new record with blob field.
      *
-     * @param  array  $values
-     * @param  array  $binaries
-     * @param  string  $sequence
+     * @param array $values
+     * @param array $binaries
+     * @param string $sequence
      * @return bool
      */
     public function updateLob(array $values, array $binaries, $sequence = 'id')
@@ -116,10 +116,10 @@ class DmBuilder extends Builder
      * Split one WHERE IN clause into multiple clauses each
      * with up to 1000 expressions to avoid ORA-01795.
      *
-     * @param  string  $column
-     * @param  mixed  $values
-     * @param  string  $boolean
-     * @param  bool  $not
+     * @param string $column
+     * @param mixed $values
+     * @param string $boolean
+     * @param bool $not
      * @return \Illuminate\Database\Query\Builder|\LaravelDm8\Dm8\Query\DmBuilder
      */
     public function whereIn($column, $values, $boolean = 'and', $not = false)
@@ -135,7 +135,7 @@ class DmBuilder extends Builder
 
             return $this->where(function ($query) use ($column, $chunks, $type, $not) {
                 foreach ($chunks as $ch) {
-                    $sqlClause = $not ? 'where'.$type : 'orWhere'.$type;
+                    $sqlClause = $not ? 'where' . $type : 'orWhere' . $type;
                     $query->{$sqlClause}($column, $ch);
                 }
             }, null, null, $boolean);
@@ -152,29 +152,24 @@ class DmBuilder extends Builder
     protected function runSelect()
     {
         $expression = $this->toSql();
-        if (strpos($expression, ' group_concat(') !== false) {
-            $expression = str_replace(' group_concat(', ' wm_concat(', $expression);
-        }
-        if (strpos($expression, ' GROUP_CONCAT(') !== false) {
-            $expression = str_replace(' GROUP_CONCAT(', ' WM_CONCAT(', $expression);
-        }
+        $expression = $this->replaceGroupConcat($expression);
 
         if ($this->lock) {
             $this->connection->beginTransaction();
-            $result = $this->connection->select($expression, $this->getBindings(), ! $this->useWritePdo);
+            $result = $this->connection->select($expression, $this->getBindings(), !$this->useWritePdo);
             $this->connection->commit();
 
             return $result;
         }
 
-        return $this->connection->select($expression, $this->getBindings(), ! $this->useWritePdo);
+        return $this->connection->select($expression, $this->getBindings(), !$this->useWritePdo);
     }
 
     /**
      * Set the table which the query is targeting.
      *
-     * @param  \Closure|\Illuminate\Database\Query\Builder|string  $table
-     * @param  string|null  $as
+     * @param \Closure|\Illuminate\Database\Query\Builder|string $table
+     * @param string|null $as
      * @return $this
      */
     public function from($table, $as = null)
@@ -187,25 +182,26 @@ class DmBuilder extends Builder
 
         return $this;
     }
+
     /**
      * Determine if the value is a query builder instance or a Closure.
      *
-     * @param  mixed  $value
+     * @param mixed $value
      * @return bool
      */
     protected function isQueryable($value)
     {
         return $value instanceof self ||
-               $value instanceof EloquentBuilder ||
-               $value instanceof Relation ||
-               $value instanceof Closure;
+            $value instanceof EloquentBuilder ||
+            $value instanceof Relation ||
+            $value instanceof Closure;
     }
 
     /**
      * Makes "from" fetch from a subquery.
      *
-     * @param  \Closure|\Illuminate\Database\Query\Builder|string  $query
-     * @param  string  $as
+     * @param \Closure|\Illuminate\Database\Query\Builder|string $query
+     * @param string $as
      * @return \Illuminate\Database\Query\Builder|static
      *
      * @throws \InvalidArgumentException
@@ -214,19 +210,19 @@ class DmBuilder extends Builder
     {
         [$query, $bindings] = $this->createSub($query);
 
-        return $this->fromRaw('('.$query.') '.$this->grammar->wrapTable($as), $bindings);
+        return $this->fromRaw('(' . $query . ') ' . $this->grammar->wrapTable($as), $bindings);
     }
 
     /**
      * Add a subquery join clause to the query.
      *
-     * @param  \Closure|\Illuminate\Database\Query\Builder|string  $query
-     * @param  string  $as
-     * @param  \Closure|string  $first
-     * @param  string|null  $operator
-     * @param  string|null  $second
-     * @param  string  $type
-     * @param  bool  $where
+     * @param \Closure|\Illuminate\Database\Query\Builder|string $query
+     * @param string $as
+     * @param \Closure|string $first
+     * @param string|null $operator
+     * @param string|null $second
+     * @param string $type
+     * @param bool $where
      * @return \Illuminate\Database\Query\Builder|static
      *
      * @throws \InvalidArgumentException
@@ -235,7 +231,7 @@ class DmBuilder extends Builder
     {
         [$query, $bindings] = $this->createSub($query);
 
-        $expression = '('.$query.') '.$this->grammar->wrapTable($as);
+        $expression = '(' . $query . ') ' . $this->grammar->wrapTable($as);
 
         $this->addBinding($bindings, 'join');
 
@@ -245,15 +241,15 @@ class DmBuilder extends Builder
     /**
      * Add a subquery cross join to the query.
      *
-     * @param  \Closure|\Illuminate\Database\Query\Builder|string  $query
-     * @param  string  $as
+     * @param \Closure|\Illuminate\Database\Query\Builder|string $query
+     * @param string $as
      * @return $this
      */
     public function crossJoinSub($query, $as)
     {
         [$query, $bindings] = $this->createSub($query);
 
-        $expression = '('.$query.') '.$this->grammar->wrapTable($as);
+        $expression = '(' . $query . ') ' . $this->grammar->wrapTable($as);
 
         $this->addBinding($bindings, 'join');
 
@@ -273,15 +269,7 @@ class DmBuilder extends Builder
     }
 
 
-    /**
-     * Add a new "raw" select expression to the query.
-     * 达梦函数转化
-     *
-     * @param  string  $expression
-     * @param  array  $bindings
-     * @return $this
-     */
-    public function selectRaw($expression, array $bindings = [])
+    protected function replaceGroupConcat($expression)
     {
         if (strpos($expression, ' group_concat(') !== false) {
             $expression = str_replace(' group_concat(', ' wm_concat(', $expression);
@@ -289,6 +277,21 @@ class DmBuilder extends Builder
         if (strpos($expression, ' GROUP_CONCAT(') !== false) {
             $expression = str_replace(' GROUP_CONCAT(', ' WM_CONCAT(', $expression);
         }
+        return $expression;
+    }
+
+    /**
+     * Add a new "raw" select expression to the query.
+     * 达梦函数转化
+     *
+     * @param string $expression
+     * @param array $bindings
+     * @return $this
+     */
+    public function selectRaw($expression, array $bindings = [])
+    {
+
+        $expression = $this->replaceGroupConcat($expression);
         $this->addSelect(new Expression($expression));
 
         if ($bindings) {
