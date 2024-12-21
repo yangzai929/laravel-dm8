@@ -11,18 +11,10 @@
 >
 > 如果没有请先安装达梦php驱动和拓展。[安装文档](https://eco.dameng.com/document/dm/zh-cn/pm/php-rogramming-guide.html#6.2%20DM%20PHP%20%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD)
 
-## 查询写法
-
-> 1. 使用 `selectRaw` 或者 `DB::raw` 函数查询时，如果当前数据库是忽略大小写的，一律返回小写字段名，
-
-## 最新版
-
-> 1. 修复model::create() 方法新增数据报错
-
 ## 关于Laravel-DM8
 
 Laravel-DM8 是 [Laravel](http://laravel.com/) 的达梦数据库驱动程序包。它是 
- [Illuminate/Database](https://github.com/illuminate/database) 的拓展，它使用 [DM8](https://eco.dameng.com/document/dm/zh-cn/faq/faq-php.html#PHP-Startup-Unable-to-load-dynamic-library) 拓展与 达梦数据库通信. 基于[Laravel的Oracle的数据库驱动程序包](https://github.com/yajra/laravel-oci8)修改而来 ,感谢 [@yajra](https://github.com/yajra).
+ [Illuminate/Database](https://github.com/illuminate/database) 的拓展，它使用 [DM8](https://eco.dameng.com/document/dm/zh-cn/pm/php-rogramming-guide.html#) 拓展与 达梦数据库通信. 基于[Laravel的Oracle的数据库驱动程序包](https://github.com/yajra/laravel-oci8)修改而来 ,感谢 [@yajra](https://github.com/yajra).
 
 ## 文档
 
